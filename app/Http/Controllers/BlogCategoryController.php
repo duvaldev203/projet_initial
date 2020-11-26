@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
+use App\Models\Blogs;
 use App\Models\APIError;
 
 class BlogCategoryController extends Controller
 {
        // Fonction pour lister les éléments de la table
-    public function index(Request $request)
+    public function index(Request $req)
     {
-        $data = BlogCategory::simplePaginate($request->has('limit') ? $request->limit : 15);
+        $data = BlogCategory::orderBy('created_at','desc')->simplePaginate($req->has('limit') ? $req->limit : 15);
+            foreach($data as $dat){
+                $nbblog = Blogs::select(Blogs::raw('count(*) as total'))->whereBlogCategorieId($dat->id)->first();
+                $dat->nbblog=$nbblog->total;
+            }
         return response()->json($data);
     }
     
@@ -28,7 +33,7 @@ class BlogCategoryController extends Controller
             'description'
         ]));
         $blogcategory = BlogCategory::create($data);
-        Return response()->json($blogcategory);
+        return response()->json($blogcategory);
     }
 
     public function update(Request $request, $id)
@@ -63,7 +68,20 @@ class BlogCategoryController extends Controller
             $error->setMessage("l'id $id que vous rechercez n'existe pas!!!");
             return response()->json($error, 404);
         }
+        $blogs = Blogs::whereBlogCategorieId($blogcategory->id )-> get();
+        if(!$blogs){
+             $error = new APIError;
+            $error->setStatus("404");
+            $error->setCode("image not found");
+            $error->setMessage("aucune image enregistrée!!!");
+            return response()->json($error, 404);
+        }
         
+            foreach($blogs as $blog){
+                $blog->image = url($blog->image);
+            }
+        
+        $blogcategory->blog =$blogs;
         return response()->json($blogcategory);
     }
 

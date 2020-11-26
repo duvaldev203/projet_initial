@@ -19,7 +19,7 @@ class CreateBlogsTable extends Migration
             $table->text('description');
             $table->string('image');
             $table->unsignedInteger('blog_categorie_id');
-            $table->foreign('blog_categorie_id')->reference('id')->on('blog_categories')->oneDelete('cascade');
+            $table->foreign('blog_categorie_id')->references('id')->on('blog_categories')->onDelete('cascade');
             $table->timestamps();
         });
     }

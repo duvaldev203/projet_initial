@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controler;
-use App\Models\Comment;
+use App\Models\Comments;
 use App\Models\APIError;
 
 
-class CommentController extends Controller
+class CommentsController extends Controller
 {
     public function index(Request $request)
     {
-        $data=Comment::simplePaginate($request->has('limit') ? $request->limit : 25);
+        $data=comments::simplePaginate($request->has('limit') ? $request->limit : 25);
         return response()-> json($data);
     }
 
@@ -28,17 +28,17 @@ class CommentController extends Controller
             'name',
             'email',
             'website',
-            'content',
+            'contend',
             'blog_id'
-            ]));
-        $comment = Comment::create($data);    
+        ]));
+        $comment = Comments::create($data);    
          
         return response()-> json($comment);
     }
 
     public function update(Request $request, $id)
     {
-        $comment = Comment::find($id);
+        $comment = Comments::find($id);
         if (!$comment) 
         {
             $error = new APIError;
@@ -54,13 +54,13 @@ class CommentController extends Controller
             'name',
             'email',
             'website',
-            'content',
+            'contend',
             'blog_id'
             ]));
             $comment->name = $data['name'];
             $comment->email = $data['email'];
             $comment->website = $data['website'];
-            $comment->content = $data['content'];
+            $comment->contend = $data['contend'];
             $comment->blog_id = $data['blog_id'];
             $comment->update();
             return response()->json($comment);
@@ -70,7 +70,7 @@ class CommentController extends Controller
 
    public function find($id)
    {
-     $comment = Comment::find($id);
+     $comment = Comments::find($id);
     if (!$comment) 
     {
         $error = new APIError;
@@ -86,7 +86,7 @@ class CommentController extends Controller
 
     public function delete($id)
     {
-        $comment = Comment::find($id);
+        $comment = Comments::find($id);
         if (!$comment) 
         {
         $error = new APIError;
